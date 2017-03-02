@@ -4,7 +4,7 @@
 
 ## 背景介绍
 
-本章我们介绍词的向量表征，也称为word embedding。词向量是自然语言处理中常见的一个操作，是搜索引擎、广告系统、推荐系统等互联网服务背后常见的基础技术。
+本章我们介绍词的**向量表征**，也称为word embedding。词向量是自然语言处理中常见的一个操作，也是搜索引擎、广告系统、推荐系统等互联网服务背后常见的基础技术。
 
 在这些互联网服务里，我们经常要比较两个词或者两段文本之间的相关性。为了做这样的比较，我们往往先要把词表示成计算机适合处理的方式。最自然的方式恐怕莫过于向量空间模型(vector space model)。 
 在这种方式里，每个词被表示成一个实数向量（one-hot vector），其长度为字典大小，每个维度对应一个字典里的每个词，除了这个词对应维度上的值是1，其他元素都是0。
@@ -31,15 +31,15 @@ $$X = USV^T$$
 本章中，当词向量训练好后，我们可以用数据可视化算法t-SNE\[[4](#参考文献)\]画出词语特征在二维上的投影（如下图所示）。从图中可以看出，语义相关的词语（如a, the, these; big, huge）在投影上距离很近，语意无关的词（如say, business; decision, japan）在投影上的距离很远。
 
 <p align="center">
-	<img src = "image/2d_similarity.png" width=400><br/>
-	图1. 词向量的二维投影
+    <img src = "image/2d_similarity.png" width=400><br/>
+    图1. 词向量的二维投影
 </p>
 
 另一方面，我们知道两个向量的余弦值在$[-1,1]$的区间内：两个完全相同的向量余弦值为1, 两个相互垂直的向量之间余弦值为0，两个方向完全相反的向量余弦值为-1，即相关性和余弦值大小成正比。因此我们还可以计算两个词向量的余弦相似度:
 
 ```
-similarity: 0.899180685161
 please input two words: big huge
+similarity: 0.899180685161
 
 please input two words: from company
 similarity: -0.0997506977351
@@ -72,7 +72,7 @@ $$P(w_1, ..., w_T) = \prod_{t=1}^TP(w_t | w_1, ... , w_{t-1})$$
 
 在计算语言学中，n-gram是一种重要的文本表示方法，表示一个文本中连续的n个项。基于具体的应用场景，每一项可以是一个字母、单词或者音节。 n-gram模型也是统计语言模型中的一种重要方法，用n-gram训练语言模型时，一般用每个n-gram的历史n-1个词语组成的内容来预测第n个词。
 
-Yoshua Bengio等科学家就于2003年在著名论文 Neural Probabilistic Language Models \[[1](#参考文献)\] 中介绍如何学习一个神经元网络表示的词向量模型。文中的神经概率语言模型（Neural Network Language Model，NNLM）通过一个线性映射和一个非线性隐层连接，同时学习了语言模型和词向量，即通过学习大量语料得到词语的向量表达，通过这些向量得到整个句子的概率。用这种方法学习语言模型可以克服维度灾难（curse of dimensionality）,即训练和测试数据不同导致的模型不准。注意：由于“神经概率语言模型”说法较为泛泛，我们在这里不用其NNLM的本名，考虑到其具体做法，本文中称该模型为N-gram neural model。
+Yoshua Bengio等科学家就于2003年在著名论文 Neural Probabilistic Language Models \[[1](#参考文献)\] 中介绍如何学习一个神经元网络表示的词向量模型。文中的神经概率语言模型（Neural Network Language Model，NNLM）通过一个线性映射和一个非线性隐层连接，同时学习了语言模型和词向量，即通过学习大量语料得到词语的向量表达，通过这些向量得到整个句子的概率。用这种方法学习语言模型可以克服维度灾难（curse of dimensionality）,即训练和测试数据维度不同导致的模型不准。注意：由于“神经概率语言模型”说法较为泛泛，我们在这里不用其NNLM的本名，考虑到其具体做法，本文中称该模型为N-gram neural model。
 
 我们在上文中已经讲到用条件概率建模语言模型，即一句话中第$t$个词的概率和该句话的前$t-1$个词相关。可实际上越远的词语其实对该词的影响越小，那么如果考虑一个n-gram, 每个词都只受其前面`n-1`个词的影响，则有：
 
@@ -84,9 +84,9 @@ $$\frac{1}{T}\sum_t f(w_t, w_{t-1}, ..., w_{t-n+1};\theta) + R(\theta)$$
 
 其中$f(w_t, w_{t-1}, ..., w_{t-n+1})$表示根据历史n-1个词得到当前词$w_t$的条件概率，$R(\theta)$表示参数正则项。
 
-<p align="center">	
-   	<img src="image/nnlm.png" width=500><br/>
-   	图2. N-gram神经网络模型
+<p align="center">  
+    <img src="image/nnlm.png" width=500><br/>
+    图2. N-gram神经网络模型
 </p>
 
 图2展示了N-gram神经网络模型，从下往上看，该模型分为以下几个部分：
@@ -96,8 +96,8 @@ $$\frac{1}{T}\sum_t f(w_t, w_{t-1}, ..., w_{t-n+1};\theta) + R(\theta)$$
  
  - 然后所有词语的词向量连接成一个大向量，并经过一个非线性映射得到历史词语的隐层表示：
  
-	$$g=Utanh(\theta^Tx + b_1) + Wx + b_2$$
-	
+    $$g=Utanh(\theta^Tx + b_1) + Wx + b_2$$
+    
     其中，$x$为所有词语的词向量连接成的大向量，表示文本历史特征；$\theta$、$U$、$b_1$、$b_2$和$W$分别为词向量层到隐层连接的参数。$g$表示未经归一化的所有输出单词概率，$g_i$表示未经归一化的字典中第$i$个单词的输出概率。
 
  - 根据softmax的定义，通过归一化$g_i$, 生成目标词$w_t$的概率为：
@@ -116,24 +116,24 @@ $$\frac{1}{T}\sum_t f(w_t, w_{t-1}, ..., w_{t-n+1};\theta) + R(\theta)$$
 
 CBOW模型通过一个词的上下文（各N个词）预测当前词。当N=2时，模型如下图所示：
 
-<p align="center">	
-	<img src="image/cbow.png" width=250><br/>
-	图3. CBOW模型
+<p align="center">  
+    <img src="image/cbow.png" width=250><br/>
+    图3. CBOW模型
 </p>
 
 具体来说，不考虑上下文的词语输入顺序，CBOW是用上下文词语的词向量的均值来预测当前词。即：
 
-$$context = \frac{x_{t-1} + x_{t-2} + x_{t+1} + x_{t+2}}{4}$$
+$$\text{context} = \frac{x_{t-1} + x_{t-2} + x_{t+1} + x_{t+2}}{4}$$
 
-其中$x_t$为第$t$个词的词向量，分类分数（score）向量 $z=U*context$，最终的分类$y$采用softmax，损失函数采用多类分类交叉熵。
+其中$x_t$为第$t$个词的词向量，分类分数（score）向量 $z=U*\text{context}$，最终的分类$y$采用softmax，损失函数采用多类分类交叉熵。
 
 ### Skip-gram model 
 
 CBOW的好处是对上下文词语的分布在词向量上进行了平滑，去掉了噪声，因此在小数据集上很有效。而Skip-gram的方法中，用一个词预测其上下文，得到了当前词上下文的很多样本，因此可用于更大的数据集。
 
-<p align="center">	
-	<img src="image/skipgram.png" width=250><br/>
-	图4. Skip-gram模型
+<p align="center">  
+    <img src="image/skipgram.png" width=250><br/>
+    图4. Skip-gram模型
 </p>
 
 如上图所示，Skip-gram模型的具体做法是，将一个词的词向量映射到$2n$个词的词向量（$2n$表示当前输入词的前后各$n$个词），然后分别通过softmax得到这$2n$个词的分类损失值之和。
@@ -147,21 +147,21 @@ CBOW的好处是对上下文词语的分布在词向量上进行了平滑，去�
 
 <p align="center">
 <table>
-	<tr>
-		<td>训练数据</td>
-		<td>验证数据</td>
-		<td>测试数据</td>
-	</tr>
-	<tr>
-		<td>ptb.train.txt</td>
-		<td>ptb.valid.txt</td>
-		<td>ptb.test.txt</td>
-	</tr>
-	<tr>
-		<td>42068句</td>
-		<td>3370句</td>
-		<td>3761句</td>
-	</tr>
+    <tr>
+        <td>训练数据</td>
+        <td>验证数据</td>
+        <td>测试数据</td>
+    </tr>
+    <tr>
+        <td>ptb.train.txt</td>
+        <td>ptb.valid.txt</td>
+        <td>ptb.test.txt</td>
+    </tr>
+    <tr>
+        <td>42068句</td>
+        <td>3370句</td>
+        <td>3761句</td>
+    </tr>
 </table>
 </p>
 
@@ -171,7 +171,7 @@ CBOW的好处是对上下文词语的分布在词向量上进行了平滑，去�
 ./data/getdata.sh
 ```
 
-	
+    
 ### 提供数据给PaddlePaddle
 
 1. 使用initializer函数进行dataprovider的初始化，包括字典的建立（build_dict函数中）和PaddlePaddle输入字段的格式定义。注意：这里N为n-gram模型中的`n`, 本章代码中，定义$N=5$, 表示在PaddlePaddle训练时，每条数据的前4个词用来预测第5个词。大家也可以根据自己的数据和需求自行调整N，但调整的同时要在模型配置文件中加入/减少相应输入字段。
@@ -190,7 +190,7 @@ CBOW的好处是对上下文词语的分布在词向量上进行了平滑，去�
     N = 5  # Ngram
     cutoff = 50  # select words with frequency > cutoff to dictionary
     def build_dict(ftrain, fdict):
-    	sentences = []
+        sentences = []
         with open(ftrain) as fin:
             for line in fin:
                 line = ['<s>'] + line.strip().split() + ['<e>']
@@ -249,7 +249,7 @@ import math
 
 args = {'srcText': 'data/simple-examples/data/ptb.train.txt',
         'dictfile': 'data/vocabulary.txt'}
-		
+        
 define_py_data_sources2(
     train_list="data/train.list",
     test_list="data/test.list",
@@ -271,9 +271,9 @@ settings(
 
 本配置的模型结构如下图所示：
 
-<p align="center">	
-	<img src="image/ngram.png" width=400><br/>
-	图5. 模型配置中的N-gram神经网络模型
+<p align="center">  
+    <img src="image/ngram.png" width=400><br/>
+    图5. 模型配置中的N-gram神经网络模型
 </p>
 
 1. 定义参数维度和和数据输入。
@@ -291,10 +291,10 @@ settings(
     ```
 
 2. 将$w_t$之前的$n-1$个词 $w_{t-n+1},...w_{t-1}$，通过$|V|\times D$的矩阵映射到D维词向量（本例中取D=32）。
-	
-	```python	
-	def wordemb(inlayer):
-		wordemb = table_projection(
+    
+    ```python   
+    def wordemb(inlayer):
+        wordemb = table_projection(
         input = inlayer,
         size = embsize,
         param_attr=ParamAttr(name = "_proj",
@@ -302,52 +302,52 @@ settings(
             l2_rate= 0,))      # 词向量不需要稀疏化，因此其l2_rate设为0
     return wordemb
 
-	Efirst = wordemb(firstword)
-	Esecond = wordemb(secondword)
-	Ethird = wordemb(thirdword)
-	Efourth = wordemb(fourthword)
-	```
+    Efirst = wordemb(firstword)
+    Esecond = wordemb(secondword)
+    Ethird = wordemb(thirdword)
+    Efourth = wordemb(fourthword)
+    ```
 
 3. 接着，将这n-1个词向量经过concat_layer连接成一个大向量作为历史文本特征。
 
-	```python
-	contextemb = concat_layer(input = [Efirst, Esecond, Ethird, Efourth])
-	```
+    ```python
+    contextemb = concat_layer(input = [Efirst, Esecond, Ethird, Efourth])
+    ```
 4. 然后，将历史文本特征经过一个全连接得到文本隐层特征。
 
     ```python
-	hidden1 = fc_layer(
-	        input = contextemb,
-	        size = hiddensize,
-	        act = SigmoidActivation(),
-	        layer_attr = ExtraAttr(drop_rate=0.5),
-	        bias_attr = ParamAttr(learning_rate = 2),
-	        param_attr = ParamAttr(
-	            initial_std = 1./math.sqrt(embsize*8),
-	            learning_rate = 1))
+    hidden1 = fc_layer(
+            input = contextemb,
+            size = hiddensize,
+            act = SigmoidActivation(),
+            layer_attr = ExtraAttr(drop_rate=0.5),
+            bias_attr = ParamAttr(learning_rate = 2),
+            param_attr = ParamAttr(
+                initial_std = 1./math.sqrt(embsize*8),
+                learning_rate = 1))
     ```
-	
+    
 5. 最后，将文本隐层特征，再经过一个全连接，映射成一个$|V|$维向量，同时通过softmax归一化得到这`|V|`个词的生成概率。
 
     ```python
-	# use context embedding to predict nextword
-	predictword = fc_layer(
-	        input = hidden1,
-	        size = dictsize,
-	        bias_attr = ParamAttr(learning_rate = 2),
-	        act = SoftmaxActivation())
-	```
+    # use context embedding to predict nextword
+    predictword = fc_layer(
+            input = hidden1,
+            size = dictsize,
+            bias_attr = ParamAttr(learning_rate = 2),
+            act = SoftmaxActivation())
+    ```
 
 6. 网络的损失函数为多分类交叉熵，可直接调用`classification_cost`函数。
 
-	```python
-	cost = classification_cost(
-	        input = predictword,
-	        label = nextword)
-	# network input and output
-	outputs(cost)
-	```
-	
+    ```python
+    cost = classification_cost(
+            input = predictword,
+            label = nextword)
+    # network input and output
+    outputs(cost)
+    ```
+    
 ##训练模型
 
 模型训练命令为`./train.sh`。脚本内容如下，其中指定了总共需要执行30个pass。
@@ -389,7 +389,7 @@ I1222 09:27:29.627713 12590 GradientMachine.cpp:112] Saving parameters to model/
 
 训练好的模型参数可以用来初始化其他模型。具体方法如下：
 在PaddlePaddle 训练命令行中，用`--init_model_path` 来定义初始化模型的位置，用`--load_missing_parameter_strategy`指定除了词向量以外的新模型其他参数的初始化策略。注意，新模型需要和原模型共享被初始化参数的参数名。
-	
+    
 ### 查看词向量
 PaddlePaddle训练出来的参数为二进制格式，存储在对应训练pass的文件夹下。这里我们提供了文件`format_convert.py`用来互转PaddlePaddle训练结果的二进制文件和文本格式特征文件。
 
@@ -417,10 +417,10 @@ python format_convert.py --b2t -i model/pass-00029/_proj -o model/pass-00029/_pr
 2) 浮点数占用的字节数，本例中为4;<br/>
 3) 总计的参数个数, 本例中为62496（即1953*32）;<br/>
 第二行及之后的每一行都按顺序表示字典里一个词的特征，用逗号分隔。
-	
+    
 ### 修改词向量
 
-我们可以对词向量进行修改，并转换成PaddlePaddle参数二进制格式，方法：	
+我们可以对词向量进行修改，并转换成PaddlePaddle参数二进制格式，方法：    
 
 ```bash
 python format_convert.py --t2b -i INPUT -o OUTPUT
@@ -435,8 +435,8 @@ python format_convert.py --t2b -i INPUT -o OUTPUT
 -0.0721337,-0.2429973,-0.0606297,0.1882059,-0.2072131,-0.7661019, ......
 ......
 ```
-	
-	
+    
+    
 
 ### 计算词语之间的余弦距离
 
