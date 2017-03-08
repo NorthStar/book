@@ -1,29 +1,27 @@
 # Machine Translation
 
-The source codes is located at [book/machine_translation](https://github.com/PaddlePaddle/book/tree/develop/machine_translation). Please refer to the PaddlePaddle [installation tutorial](http://www.paddlepaddle.org/doc_cn/build_and_install/index.html) if you are a first time user.
+The source code lives on [book/machine_translation](https://github.com/PaddlePaddle/book/tree/develop/machine_translation). For instructions on getting started with PaddlePaddle, see [PaddlePaddle installation guide](http://www.paddlepaddle.org/doc_cn/build_and_install/index.html).
 
 ## Background
 
-Machine translation (MT) leverages computers to translate from one language to another. The language to be translated is referred to as the source language, while the language to be translated into is referred to as the target language. Thus, Machine translation is the process of translating from the source language to the target language. It is one of the most important research topics in the field of natural language processing.
+**Machine translation (MT)** leverages the computer to translate text or speech from one language to another. The language to be translated into another language is referred to as the **source language**, while the language to be translated into is referred to as the **target language**. Thus, *Machine Translation* is the process of translating from the source language to the target language. It is one of the most important research topics in the field of natural language processing.
 
-Early machine translation systems are mainly rule-based i.e. they rely on a language expert to specify the translation rules between the two languages. It is quite difficult to cover all the rules used in one languge. So it is quite a challenge for language experts to specify all possible rules in two or more different languages. Hence, a major challenge in conventional machine translation has been the difficulty in obtaining a complete rule set \[[1](#References)\]。
+Early machine translation systems are often *rule-based* i.e. they require linguists to compile all the translation rules between the two languages, so that someone else can then record the rules on a machine. Because it is already difficult to cover all the rules used in one languge, it is beyond challenging for linguists to specify all of them in two or more different languages. As a result, conventional systems face the impossible challenge of obtaining a complete rule set \[[1](#References)\].
 
 
-To address the aforementioned problems, statistical machine translation techniques have been developed. These techniques learn the translation rules from a large corpus, instead of being designed by a language expert. While these techniques overcome the bottleneck of knowledge acquisition, there are still quite a lot of challenges, for example:
+To address the aforementioned problem, **statistical machine translation (SMT)** techniques are developed. SMT techniques learn the translation rules from a large corpus, instead of having them designed by linguists. While these techniques overcome the bottleneck of knowledge acquisition, a large number of problems are still present, including
 
-1. human designed features cannot cover all possible linguistic variations;
+1. human-designed features cannot cover all possible linguistic variations;
 
 2. it is difficult to use global features;
 
-3. the techniques heavily rely on pre-processing techniques like word alignment, word segmentation and tokenization, rule-extraction and syntactic parsing etc. The error introduced in any of these steps could accumulate and impact translation quality.
+3. the techniques rely heavily on preprocessing steps, such as word alignment, word segmentation and tokenization, rule-extraction, and syntactic parsing. The errors introduced at every step accummulate and impact translation quality.
 
+The recent development of deep learning provides new approaches to these challenges. There are two main categories for machine translation techniques based on deep learning:
 
+1. techniques based on statistical machine translation systems but with some key components improved with neural networks, e.g., language model, reordering model (see the left portion of Figure 1);
 
-The recent development of deep learning provides new solutions to these challenges. The two main categories for deep learning based machine translation techniques are:
-
-1. techniques based on the statistical machine translation system but with some key components improved with neural networks, e.g., language model, reordering model (please refer to the left part of Figure 1);
-
-2. techniques mapping from source language to target language directly using a neural network, or end-to-end neural machine translation (NMT).
+2. techniques mapping from source language to target language directly using a neural network, or **end-to-end neural machine translation (End-to-End NMT)**.
 
 <p align="center">
 <img src="image/nmt_en.png" width=400><br/>
@@ -35,29 +33,29 @@ This tutorial will mainly introduce an NMT model and how to use PaddlePaddle to 
 
 ## Illustrative Results
 
-Let's consider an example of Chinese-to-English translation. The model is given the following segmented sentence in Chinese
+Consider an example of Chinese-to-English translation. The model is given the following segmented sentence in Chinese
 ```text
 这些 是 希望 的 曙光 和 解脱 的 迹象 .
 ```
-After training and with a beam-search size of 3, the generated translations are as follows:
+After training and with a [beam search](#Beam Search Algorithm) size of 3, the generated translations are as follows:
 ```text
 0 -5.36816   these are signs of hope and relief . <e>
 1 -6.23177   these are the light of hope and relief . <e>
 2 -7.7914  these are the light of hope and the relief of hope . <e>
 ```
-- The first column corresponds to the id of the generated sentence; the second column corresponds to the score of the generated sentence (in descending order), where a larger value indicates better quality; the last column corresponds to the generated sentence.
+- The first column corresponds to the index of the generated sentence; the second column corresponds to the score of the generated sentence (in descending order), where a larger value indicates better quality; the last column corresponds to the generated sentence.
 - There are two special tokens: `<e>` denotes the end of a sentence while `<unk>` denotes unknown word, i.e., a word not in the training dictionary.
 
 ## Overview of the Model
 
-This section will introduce Gated Recurrent Unit (GRU), Bi-directional Recurrent Neural Network, the Encoder-Decoder framework used in NMT, attention mechanism, as well as the beam search algorithm.
+This section will introduce the following concepts: **Gated Recurrent Unit (GRU)**, **Bi-directional Recurrent Neural Network**, the **Encoder-Decoder** framework used in NMT, **attention** mechanism, and the **beam search** algorithm.
 
 ### Gated Recurrent Unit (GRU)
 
-We already introduced RNN and LSTM in the [Sentiment Analysis](https://github.com/PaddlePaddle/book/blob/develop/understand_sentiment/README.md) chapter.
+We already introduced **RNN** and **LSTM** in the [Sentiment Analysis](https://github.com/PaddlePaddle/book/blob/develop/understand_sentiment/README.md) chapter.
 Compared to a simple RNN, the LSTM added memory cell, input gate, forget gate and output gate. These gates combined with the memory cell greatly improve the ability to handle long-term dependencies.
 
-GRU\[[2](#References)\] proposed by Cho et al is a simplified LSTM and an extension of a simple RNN. It is shown in the figure below.
+GRU\[[2](#References)\], proposed by Cho et al., is a simplified LSTM and an extension of a simple RNN. It is shown in the figure below.
 A GRU unit has only two gates:
 - reset gate: when this gate is closed, the history information is discarded, i.e., the irrelevant historical information has no effect on the future output.
 - update gate: it combines the input gate and the forget gate and is used to control the impact of historical information on the hidden output. The historical information is passed over when the update gate is close to 1.
@@ -68,11 +66,11 @@ Figure 2. A GRU Gate
 </p>
 
 Generally speaking, sequences with short distance dependencies will have an active reset gate while sequences with long distance dependency will have an active update date.
-In addition, Chung et al.\[[3](#References)\] have empirically shown that although GRU has less parameters, it has similar performance to LSTM on several different tasks.
+In addition, Chung et al.\[[3](#References)\] have empirically shown that although GRU has fewer parameters, it has similar accuracy to LSTM on several different tasks.
 
 ### Bi-directional Recurrent Neural Network
 
-We already introduced an instance of bi-directional RNN in the [Semantic Role Labeling](https://github.com/PaddlePaddle/book/blob/develop/label_semantic_roles/README.md) chapter. Here we present another bi-directional RNN model with a different architecture proposed by Bengio et al. in \[[2](#References),[4](#References)\]. This model takes a sequence as input and outputs a fixed dimensional feature vector at each step, encoding the context information at the corresponding time step.
+A prior chapter, [Semantic Role Labeling](https://github.com/PaddlePaddle/book/blob/develop/label_semantic_roles/README.md), introduces an instance of bi-directional RNN. Here we present another bi-directional RNN model with a different architecture, originally proposed by Bengio et al.\[[2](#References),[4](#References)\]. This model takes a sequence as input and, at each step, outputs a feature vector of fixed-dimension. The feature vectors encode the contextual information at the corresponding time step.
 
 Specifically, this bi-directional RNN processes the input sequence in the original and reverse order respectively, and then concatenates the output feature vectors at each time step as the final output. Thus the output node at each time step contains information from the past and future as context. The figure below shows an unrolled bi-directional RNN. This network contains a forward RNN and backward RNN with six weight matrices: weight matrices from input to forward hidden layer and backward hidden ($W_1, W_3$), weight matrices from hidden to itself ($W_2, W_5$), matrices from forward hidden and backward hidden to output layer ($W_4, W_6$). Note that there are no connections between forward hidden and backward hidden layers.
 
